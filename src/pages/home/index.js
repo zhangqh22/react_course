@@ -64,15 +64,12 @@ class Home extends Component {
     }
 
     handleAsyncAdd() {
-        $.ajax({
-            type: 'get',
-            url: '../../data/list.json',
-            success: function(res) {
-                console.log(res);
-            },
-            error: function() {
-                console.log('请求失败~');
-            }
+        $.getScript('list.js', res=>{
+            let data = eval(res); // 只作演示参考，实际项目尽量不使用eval
+            let addList = data.concat(this.state.list);
+            this.setState({
+                list: addList
+            });
         });
     }
 
