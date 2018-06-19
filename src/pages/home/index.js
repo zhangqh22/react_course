@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import { Random } from 'mockjs';
+import $ from 'jquery';
 import './css/index.css';
 
 class Home extends Component {
@@ -26,7 +27,6 @@ class Home extends Component {
     }
 
     render() {
-
         let listHtml = this.state.list.map(v=>{
                 return (<div className="panel" id={ v.id } key={ v.id }>
                             <div className="panel-head">
@@ -40,20 +40,71 @@ class Home extends Component {
                             </div>
                         </div>);
             });
-
         return (
             <div>
+                <button type="button" onClick={this.handleAdd.bind(this)} style={{marginRight: '10px'}}>增加一条</button>
+                <button type="button" onClick={this.handleAsyncAdd.bind(this)} style={{marginRight: '10px'}}>异步增加</button>
+                <button type="button" onClick={this.handleLogout.bind(this)} style={{float: 'right'}}>退出登录</button>
                 { listHtml }
             </div>
         );
     }
 
+    handleAdd() {
+        let addList = [{
+            id: Random.guid(),
+            title: '新增-'+Random.title(),
+            content: Random.cparagraph(),
+            image: Random.dataImage(),
+            time: Random.datetime()
+        }].concat(this.state.list);
+        this.setState({
+            list: addList
+        });
+    }
+
+    handleAsyncAdd() {
+        $.ajax({
+            type: 'get',
+            url: '../../data/list.json',
+            success: function(res) {
+                console.log(res);
+            },
+            error: function() {
+                console.log('请求失败~');
+            }
+        });
+    }
+
     handleEdit(id) {
-        console.log(id);
+        alert('没有编辑框，只做了随机修改演示~');
+        let filterList = this.state.list.map(v=>{
+            if(v.id === id) {
+                v.image = Random.dataImage();
+                v.title = '编辑-'+Random.title();
+            }
+            return v;
+        });
+        this.setState({
+            list: filterList
+        });
     }
 
     handleDel(id) {
-        console.log(id);
+        let delFlag = window.confirm('确定要删除吗？');
+        if(delFlag) {
+            let filterList = this.state.list.filter(v=>{
+                if(v.id !== id) return v;
+            });
+            this.setState({
+                list: filterList
+            });
+        }
+    }
+
+    handleLogout() {
+        sessionStorage.removeItem('username');
+        this.props.router.replace('/login');
     }
 }
 
